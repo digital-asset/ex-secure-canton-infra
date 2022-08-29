@@ -1,0 +1,30 @@
+global
+    log stdout format raw local0 debug
+    ssl-default-bind-options ssl-min-ver TLSv1.3
+
+defaults
+    log global
+    mode http
+    #option httplog
+    option log-health-checks
+    # enabled so long running connections are logged immediately upon connect
+    option logasap
+    timeout connect 5s
+    timeout client 5s
+    timeout server 5s
+    log-format "%ci:%cp [%tr] %ft %b/%s %TR/%Tw/%Tc/%Tr/%Ta %ST %B %CC %CS %tsc %ac/%fc/%bc/%sc/%rc %sq/%bq %hrl %hsl %{+Q}r"
+
+frontend sequencer-api
+    bind :<SEQUENCER_PORT> alpn h2 proto h2 ssl crt /etc/ssl/server.crt verify none ca-file /etc/ssl/certs/ca-chain.crt
+    default_backend ledger-api
+    #option httplog
+    option http-keep-alive
+
+backend sequencer-api
+    option httpchk
+    balance roundrobin
+
+    server sequencer1 <SEQUENCER_1_HOST>:<CANTON_SEQUENCER_1_PUBLIC_PORT> alpn h2 proto h2 ssl verify none ca-file /etc/ssl/certs/ca-chain.crt
+    server sequencer2 <SEQUENCER_2_HOST>:<CANTON_SEQUENCER_2_PUBLIC_PORT> alpn h2 proto h2 ssl verify none ca-file /etc/ssl/certs/ca-chain.crt
+
+

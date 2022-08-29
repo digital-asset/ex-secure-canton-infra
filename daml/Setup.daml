@@ -1,0 +1,88 @@
+module Setup where
+
+--import DA.Foldable (forA_)
+import DA.Optional (fromSomeNote)
+import qualified DA.Text as T
+import Daml.Script
+
+data PartiesP1 = PartiesP1
+  with
+    alice : Party
+
+data PartiesP2 = PartiesP2
+  with
+    bob : Party
+    bank: Party
+
+-- | A test user for the create-daml-app network.
+data TestUser = TestUser with
+  alias : Text
+
+data NavigatorUser = NavigatorUser with
+  alias : Text
+  parties : [Party]
+
+listParties: Script [PartyDetails]
+listParties = do
+  parties <- listKnownParties
+  pure $ parties
+
+-- | Create a test users.
+setup_participant1 : Script PartiesP1
+setup_participant1 = do
+  alice <- createTestUser $ TestUser "Alice"
+  navigator <- createNavigator $ NavigatorUser "navigator" [alice]
+  pure $ PartiesP1 with
+      alice
+
+-- | Create two test users for participant 2
+setup_participant2 : Script PartiesP2
+setup_participant2 = do
+  bob <- createTestUser $ TestUser "Bob"
+  bank <- createTestUser $ TestUser "Bank"
+  navigator <- createNavigator $ NavigatorUser "navigator" [bob,bank]
+  pure $ PartiesP2 with
+      bob
+      bank
+
+-- | Create a test user.
+createTestUser : TestUser -> Script Party
+createTestUser TestUser{alias} = do
+  u <- getOrCreateUser alias
+  let p = getPrimaryParty u
+  pure p
+
+-- create Navigator User
+createNavigator : NavigatorUser -> Script User
+createNavigator NavigatorUser{alias, parties} = do 
+  navigatorId <- validateUserId alias
+  try
+    getUser navigatorId
+  catch
+    UserNotFound _ -> do
+      let navigator = User navigatorId None
+      createUser navigator $ [ParticipantAdmin]
+      do forA parties $ \party -> grantUserRights navigatorId [CanActAs party] 
+      pure navigator
+
+-- | Get a user by their id. If the user doesn't exist, it is created.
+getOrCreateUser : Text -> Script User
+getOrCreateUser alias = do
+  userId <- validateUserId $ toUserId alias
+  try
+    getUser userId
+  catch
+    UserNotFound _ -> do
+      p <- allocateParty alias
+      let u = User userId (Some p)
+      createUser u $ [CanActAs p]
+      pure u
+
+-- | Convert a text to a valid user id.
+toUserId : Text -> Text
+toUserId = T.asciiToLower
+
+-- | Try to get the primary party of a user and fail if the user has no associated primary party.
+getPrimaryParty : User -> Party
+getPrimaryParty u = fromSomeNote ("User " <> userIdToText u.userId <> " is missing a primary party.") u.primaryParty
+

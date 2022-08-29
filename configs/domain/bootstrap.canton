@@ -1,0 +1,3 @@
+domain.setup.bootstrap_domain(sequencers.remote, Seq(mediator))
+
+

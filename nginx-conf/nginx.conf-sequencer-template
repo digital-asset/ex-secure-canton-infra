@@ -1,0 +1,100 @@
+
+user  nginx;
+worker_processes  10;
+
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+
+#pid        logs/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/grpc;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    log_format upstream_logging '[$time_local] $remote_addr - $remote_user - $server_name to: $upstream_addr: $request with $http_apikey <$request_body_file> --> upstream_response_time $upstream_response_time msec $msec request_time $request_time --- $sent_http_clientapikey ';
+
+    ssl_protocols TLSv1.3; # Dropping SSLv3, ref: POODLE, TLS1, TLS1.1, TLS1.2
+    ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256';
+    ssl_prefer_server_ciphers on;
+
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+    #access_log  logs/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    # gzip  on;
+
+    upstream sequencer {
+        #server       <SEQUENCER_1_HOST>:<CANTON_SEQUENCER_1_PUBLIC_PORT>;
+        #server       <SEQUENCER_2_HOST>:<CANTON_SEQUENCER_2_PUBLIC_PORT>;
+
+        # For Docker on Mac use host.docker.internal
+        server       <SEQUENCER_1_HOST>:<CANTON_SEQUENCER_1_PUBLIC_PORT>;
+        server       <SEQUENCER_2_HOST>:<CANTON_SEQUENCER_2_PUBLIC_PORT>;
+    }
+ 
+    server {
+        listen       <SEQUENCER_PORT> ssl http2;
+        #listen       <SEQUENCER_HOST>:<SEQUENCER_PORT> ssl http2;
+        server_name  <SEQUENCER_HOST>;  # alias
+
+        ssl_certificate      /etc/ssl/server.crt;
+        ssl_certificate_key  /etc/ssl/server.key;
+
+        # Public API does not use client certs
+        #ssl_client_certificate /etc/ssl/certs/ca-chain.crt;
+        #ssl_verify_client on;
+
+        ssl_session_cache    shared:SSL:1m;
+        ssl_session_timeout  5m;
+
+        #add_header Strict-Transport-Security "max-age=31536000; includeSubdomains;" always;
+        #add_header X-Frame-Options SAMEORIGIN;
+        #add_header X-Content-Type-Options nosniff;
+        #add_header X-XSS-Protection "1; mode=block";
+
+        location / {
+            #access_log /var/log/nginx/stream.log upstream_logging;
+
+            grpc_intercept_errors on;
+            grpc_read_timeout 1s;
+            grpc_next_upstream timeout error http_504 invalid_header non_idempotent;
+            grpc_next_upstream_timeout 5s;
+            grpc_next_upstream_tries 5; 
+            grpc_pass grpcs://sequencer;
+            error_page 502 = /error502grpc;
+
+            grpc_ssl_protocols TLSv1.3;
+            grpc_ssl_server_name on;
+            grpc_ssl_verify off;
+            grpc_ssl_trusted_certificate /etc/ssl/certs/ca-chain.crt;
+
+            # Public AI does not use client certs
+            # grpc_ssl_certificate /etc/ssl/client.crt;
+            # grpc_ssl_certificate_key /etc/ssl/client.key;
+        }
+        
+        location = /error502grpc {
+            internal;
+            default_type application/grpc;
+            add_header grpc-status 14;
+            add_header grpc-message "unavailable";
+            return 204;
+        }
+    }
+}

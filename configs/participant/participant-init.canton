@@ -1,0 +1,25 @@
+
+val participant = participants.local.head
+
+// only run once
+if(participant.domains.list_registered().isEmpty) {
+
+    // connect all local participants to the domain passing a user chosen alias and the domain port as the argument
+    participants.local.foreach(_.domains.connect("domain", "https://0.0.0.0:4401", certificatesPath = "./certs/domain/intermediate/certs/ca-chain.cert.pem"))
+
+    // above connect operation is asynchronous. it is generally at the discretion of the domain
+    // to decide if a participant can join and when. therefore, we need to asynchronously wait here
+    // until the participant observes its activation on the domain
+    utils.retry_until_true {
+        participant.domains.active("domain")
+    }
+    // synchronize vetting to ensure the participant has the package needed for the ping
+    participant.packages.synchronize_vetting()
+
+    // verify that the connection works
+    participant.health.ping(participant)
+
+}
+
+java.nio.file.Files.write(java.nio.file.Paths.get("data/"+participants.local.head.id.uid.toProtoPrimitive.split("::").head+".txt"), participants.local.head.id.uid.toProtoPrimitive.getBytes())
+

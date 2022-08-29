@@ -1,0 +1,56 @@
+module Workflow where
+
+import Daml.Script
+-- import DA.List
+
+import Iou
+import Paint
+
+data Parties = Parties
+  with
+    alice: Party
+    bob : Party
+    bank : Party
+
+assumeFirst: forall tpl p. (Template tpl, IsParties p) => p -> Script (ContractId tpl)
+assumeFirst party = do
+  (headId, _) :: _ <- query @tpl party
+  pure headId
+
+-- | Bank user creates an Iou for Alice
+bankIou : Parties -> Script (ContractId Iou)
+bankIou parties = do
+  iou <- submit parties.bank do
+    createCmd Iou with owner = parties.alice; payer = parties.bank; amount = Amount{value = 100.0, currency = "USD"}; viewers = []
+  pure (iou)
+
+-- | Bob offers to paint house
+paintOffer : Parties -> Script (ContractId OfferToPaintHouseByPainter)
+paintOffer parties = do
+  paintOffer <- submit parties.bob do
+    createCmd OfferToPaintHouseByPainter with houseOwner = parties.alice; bank = parties.bank; painter = parties.bob; amount = Amount{value = 100.0, currency = "USD"}
+  pure (paintOffer)
+
+acceptOffer : Parties -> Script (ContractId Iou)
+acceptOffer parties = do
+  iouId <- assumeFirst @Iou parties.alice
+  offerId <- assumeFirst @OfferToPaintHouseByPainter parties.alice
+  acceptId <- submit parties.alice do
+    exerciseCmd offerId AcceptByOwner with iouId = iouId
+  pure (acceptId)
+
+callOffer : Parties -> Script (ContractId GetCash)
+callOffer parties = do
+  iouId <- assumeFirst @Iou parties.bob
+  cashId <- submit parties.bob do
+    exerciseCmd iouId Call
+  pure (cashId)
+
+archiveCash : Parties -> Script ()
+archiveCash parties = do
+  cashId <- assumeFirst @GetCash parties.bob
+  submitMulti [parties.bob, parties.bank] [] do
+    archiveCmd cashId
+  pure ()
+
+  

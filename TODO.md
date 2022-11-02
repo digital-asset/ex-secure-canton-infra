@@ -3,13 +3,13 @@
 - Understanding operational actions around DAR upload / distribution
 # Daml example
 - Sample Daml App - Use CantonExamples to start - DONE
-- Triggers talking to participants
+- Triggers talking to participants - DONE
 # TLS
 - Enable TLS on Sequencer, Mediator, Domain-Manager - DONE
 - Enable mTLS on Admin API on Sequencer - DONE
 - Enable TLS and JWT on Ledger API on participants - DONE
 - Use party specific mTLS for authentication instead of admin cert
-- Enable Postgres TLS for Domain and Participants - PARTIAL (Participant not working; bug reported)
+- Enable Postgres TLS for Domain and Participants - DONE
 # JWT
 - Enable JWT on Ledger API on participants - DONE
 # Identity Management

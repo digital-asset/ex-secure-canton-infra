@@ -1,0 +1,31 @@
+global
+    log stdout format raw local0 debug
+    ssl-default-bind-options ssl-min-ver TLSv1.3
+
+defaults
+    log global
+    mode http
+    #option httplog
+    option log-health-checks
+    # enabled so long running connections are logged immediately upon connect
+    option logasap
+    timeout connect 5s
+    timeout client 5s
+    timeout server 5s
+    log-format "%ci:%cp [%tr] %ft %b/%s %TR/%Tw/%Tc/%Tr/%Ta %ST %B %CC %CS %tsc %ac/%fc/%bc/%sc/%rc %sq/%bq %hrl %hsl %{+Q}r"
+
+frontend ledger-api
+    bind :<JSON_API_PORT> alpn h2 proto h2 ssl crt /etc/ssl/server.crt verify required ca-file /etc/ssl/certs/ca-chain.crt
+    default_backend ledger-api
+    #option httplog
+    option http-keep-alive
+    option forwardfor header X-Real-IP
+    http-request set-header X-Real-IP %[src]
+    option forwardfor header XForwarded-For-
+    http-request set-header X-Forwarded-For %[src]
+    http-request set-header X-Forwarded-Proto https
+
+backend ledger-api
+    server json1 <JSON_API_A_HOST>:<JSON_API_A_PORT> alpn http/1.1 check 
+
+

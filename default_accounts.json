@@ -1,0 +1,11 @@
+[
+    {
+	"client_id": "participant_admin",
+        "client_secret": "$pbkdf2-sha256$29000$DMH433sPQSjl3Ls3hnCOUQ$fGp/prTM9awXTsKOVFSLUSTPxxGV6vjyMf4qasItAxc",
+        "parties": [],
+        "admin": "True",
+        "azp": "",
+        "token_type": "user",
+        "participant_id": "all"
+    }
+]

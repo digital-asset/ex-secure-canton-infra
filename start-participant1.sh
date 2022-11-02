@@ -7,15 +7,28 @@ source env.sh
 export POSTGRES_USER=participant1
 export POSTGRES_PASSWORD=Participant1Password!
 export POSTGRES_HOST=localhost
-export POSTGRES_PORT=5433
 export POSTGRES_MAX_CONNECTIONS=8
-
 export POSTGRES_SSL=true
 export POSTGRES_SSLMODE=verify-full
-export POSTGRES_SSLROOTCERT="certs/participant1/intermediate/certs/ca-chain.cert.pem"
-export POSTGRES_SSLCERT="certs/participant1/client/participant1.customer1.com.cert.der"
-export POSTGRES_SSLKEY="certs/participant1/client/participant1.customer1.com.key.der"
-export POSTGRES_URL="jdbc:postgresql://$POSTGRES_HOST:$POSTGRES_PORT/participant1?user=participant1&password=Participant1Password!&ssl=true&sslmode=verify-full&sslrootcert=$ROOTDIR/certs/participant1/intermediate/certs/ca-chain.cert.pem&sslcert=$ROOTDIR/certs/participant1/client/participant1.customer1.com.cert.der&sslkey=$ROOTDIR/certs/participant1/client/participant1.customer1.com.key.der"
+
+
+get_os_type
+if  [[ ${_GET_OS_TYPE} =~ 'CYGWIN_NT' ]];then
+  # Windows only supports a single postgres instance so all the TLS certs will be from the domain
+  export POSTGRES_PORT=5432
+  export POSTGRES_SSLROOTCERT="certs/domain/intermediate/certs/ca-chain.cert.pem"
+  export POSTGRES_SSLCERT="certs/domain/client/participant1.acme.com.cert.der"
+  export POSTGRES_SSLKEY="certs/domain/client/participant1.acme.com.key.der"
+  export POSTGRES_URL="jdbc:postgresql://$POSTGRES_HOST:$POSTGRES_PORT/participant1?user=participant1&password=Participant1Password!&ssl=true&sslmode=verify-full&sslrootcert=$ROOTDIR/certs/domain/intermediate/certs/ca-chain.cert.pem&sslcert=$ROOTDIR/certs/domain/client/participant1.acme.com.cert.der&sslkey=$ROOTDIR/certs/domain/client/participant1.acme.com.key.der"
+else
+  # 'Darwin' or 'Linux' so use different postgres instance
+  export POSTGRES_PORT=5433
+  export POSTGRES_SSLROOTCERT="certs/participant1/intermediate/certs/ca-chain.cert.pem"
+  export POSTGRES_SSLCERT="certs/participant1/client/participant1.customer1.com.cert.der"
+  export POSTGRES_SSLKEY="certs/participant1/client/participant1.customer1.com.key.der"
+  export POSTGRES_URL="jdbc:postgresql://$POSTGRES_HOST:$POSTGRES_PORT/participant1?user=participant1&password=Participant1Password!&ssl=true&sslmode=verify-full&sslrootcert=$ROOTDIR/certs/participant1/intermediate/certs/ca-chain.cert.pem&sslcert=$ROOTDIR/certs/participant1/client/participant1.customer1.com.cert.der&sslkey=$ROOTDIR/certs/participant1/client/participant1.customer1.com.key.der"
+fi
+
 
 export JWKS_URL="file://${ROOTDIR}/certs/participant1/jwt/jwks.json"
 

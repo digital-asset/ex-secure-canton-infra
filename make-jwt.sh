@@ -35,33 +35,37 @@ make_jwt_signing() {
   local DOMAIN_NAME=$2
   local namespace=$3
 
+  cd ${ROOTDIR}
+
   echo " Generating local signing key JWT"
-  openssl genpkey -out $ROOTDIR/certs/$namespace/signing/jwt-sign.$DOMAIN.key.pem -algorithm RSA -pkeyopt rsa_keygen_bits:2048
-  openssl req -new -key $ROOTDIR/certs/$namespace/signing/jwt-sign.$DOMAIN.key.pem \
+  openssl genpkey -out certs/$namespace/signing/jwt-sign.$DOMAIN.key.pem -algorithm RSA -pkeyopt rsa_keygen_bits:2048
+  openssl req -new -key certs/$namespace/signing/jwt-sign.$DOMAIN.key.pem \
       -subj "/C=US/ST=New York/O=$DOMAIN_NAME/CN=jwt-sign.$DOMAIN" \
-      -out $ROOTDIR/certs/$namespace/signing/jwt-sign.$DOMAIN.csr.pem
+      -out certs/$namespace/signing/jwt-sign.$DOMAIN.csr.pem
 
       #-addext "subjectAltName = DNS:jwt-sign.$DOMAIN, IP:127.0.0.1" \
 
   # Sign Client Cert
-  openssl ca -batch -config $ROOTDIR/certs/$namespace/intermediate/openssl.cnf \
+  openssl ca -batch -config certs/$namespace/intermediate/openssl.cnf \
       -extensions sign_cert -notext -md sha256 \
-      -in $ROOTDIR/certs/$namespace/signing/jwt-sign.$DOMAIN.csr.pem \
-      -out $ROOTDIR/certs/$namespace/signing/jwt-sign.$DOMAIN.cert.pem
+      -in certs/$namespace/signing/jwt-sign.$DOMAIN.csr.pem \
+      -out certs/$namespace/signing/jwt-sign.$DOMAIN.cert.pem
 
   # Validate cert is correct
-  openssl verify -CAfile $ROOTDIR/certs/$namespace/intermediate/certs/ca-chain.cert.pem \
-      $ROOTDIR/certs/$namespace/signing/jwt-sign.$DOMAIN.cert.pem
+  openssl verify -CAfile certs/$namespace/intermediate/certs/ca-chain.cert.pem \
+      certs/$namespace/signing/jwt-sign.$DOMAIN.cert.pem
 }
 
 make_jwks() {
   local DOMAIN=$1
   local namespace=$2
+
+  cd ${ROOTDIR}
   echo "Creating JKWS for local signer..."
-  FINGERPRINT=`openssl x509 -in $ROOTDIR/certs/$namespace/signing/jwt-sign.$DOMAIN.cert.pem -fingerprint -sha1`
-  SIGNING_DER=`openssl x509 -in $ROOTDIR/certs/$namespace/signing/jwt-sign.$DOMAIN.cert.pem -outform DER | base64 `
-  INTERMEDIATE_DER=`openssl x509 -in $ROOTDIR/certs/$namespace/intermediate/certs/intermediate.cert.pem -outform DER | base64 `
-  ROOT_DER=`openssl x509 -in $ROOTDIR/certs/$namespace/root/certs/ca.cert.pem -outform DER | base64 `
+  FINGERPRINT=`openssl x509 -in certs/$namespace/signing/jwt-sign.$DOMAIN.cert.pem -fingerprint -sha1`
+  SIGNING_DER=`openssl x509 -in certs/$namespace/signing/jwt-sign.$DOMAIN.cert.pem -outform DER | base64 `
+  INTERMEDIATE_DER=`openssl x509 -in certs/$namespace/intermediate/certs/intermediate.cert.pem -outform DER | base64 `
+  ROOT_DER=`openssl x509 -in certs/$namespace/root/certs/ca.cert.pem -outform DER | base64 `
 
   which python3
   python3 --version
@@ -107,40 +111,60 @@ make_user_jwt() {
 
   #echo $PAYLOAD_TEMPLATE
   #echo $SIGNING_KEY
-  if [ ! -f /etc/os-release ] ; then
-    # Guessing this is Darwin
-    PAYLOAD=`echo -n "$PAYLOAD_TEMPLATE" | base64 | tr -- '+/' '-_' | sed -E s/=+$//`
-  else
-    PAYLOAD=`echo -n "$PAYLOAD_TEMPLATE" | base64 -w 0 | tr -- '+/' '-_' | sed -E s/=+$//`
-  fi
-  DIGEST=`echo -n "$HEADER.$PAYLOAD" | openssl dgst -sha256 -sign $SIGNING_KEY -binary | base64 | tr -d '\n=' | tr -- "+/" "-_"`
+
+  # if [ ! -f /etc/os-release ] ; then  <<<<<< This is an issue 
+  #   # Guessing this is Darwin  
+  #   PAYLOAD=`echo -n "$PAYLOAD_TEMPLATE" | base64  | tr -- '+/' '-_' | sed -E s/=+$//`
+  #   echo "&&&&&&&&&&&&&& Added -w 0"
+  # else
+  #  # linux and cygwin
+  #   PAYLOAD=`echo -n "$PAYLOAD_TEMPLATE" | base64 -w 0 | tr -- '+/' '-_' | sed -E s/=+$//`
+  # fi
+  get_os_type 
+  case ${_GET_OS_TYPE} in
+    Darwin)
+      PAYLOAD=`echo -n "$PAYLOAD_TEMPLATE" | base64  | tr -- '+/' '-_' | sed -E s/=+$//`
+      ;;
+    Linux)
+      PAYLOAD=`echo -n "$PAYLOAD_TEMPLATE" | base64 -w 0 | tr -- '+/' '-_' | sed -E s/=+$//`
+      ;;
+    CYGWIN_NT)
+      PAYLOAD=`echo -n "$PAYLOAD_TEMPLATE" | base64 -w 0 | tr -- '+/' '-_' | sed -E s/=+$//`
+      ;;
+    *)
+      echo "Unknown OS type of ${OS_TYPE}.   Aborting make_user_jwt ..."
+      exit 1
+  esac
+
+  DIGEST=`echo -n "$HEADER.$PAYLOAD" | openssl dgst -sha256 -sign $SIGNING_KEY -binary | base64 | tr -d '\n\r=' | tr -d '\r\n=' | tr -d '\n=' | tr -d '\r=' | tr -- "+/" "-_"`
   JWT=$HEADER.$PAYLOAD.$DIGEST
   echo -n $JWT > certs/$namespace/jwt/$user.token
   #echo "$user Token: $JWT"
   #echo ""
 
-  openssl x509 -pubkey -noout -in ${ROOTDIR}/certs/$namespace/signing/jwt-sign.$DOMAIN.cert.pem > ${ROOTDIR}/certs/$namespace/signing/jwt-sign.$DOMAIN.pub.pem
+  cd ${ROOTDIR}
+  openssl x509 -pubkey -noout -in certs/$namespace/signing/jwt-sign.$DOMAIN.cert.pem > certs/$namespace/signing/jwt-sign.$DOMAIN.pub.pem
   input=${JWT%.*}
   echo -n $input > ./data/payload.txt
-  #echo $input
+  # echo $input
 
   # Extract the signature portion
   encSig=${JWT##*.}
-  #echo encSig
+  # echo encSig
 
   # Decode the signature
   #echo $(base64url_to_b64 ${encSig})
   printf '%s' "$(base64url_to_b64 ${encSig})" | base64 -d > ./data/signature.dat
 
-  #TEST=`echo -n "$HEADER.$PAYLOAD" | openssl dgst -sha256 -sign $SIGNING_KEY -binary`
-  #echo -n "$HEADER.$PAYLOAD" > test.txt
-  #echo -n "$TEST" > test-sig.bin
-  #openssl dgst -sha256 -verify ${ROOTDIR}/certs/$namespace/signing/jwt-sign.$DOMAIN.pub.pem -signature test-sig.bin test.txt
+  # TEST=`echo -n "$HEADER.$PAYLOAD" | openssl dgst -sha256 -sign $SIGNING_KEY -binary`
+  # echo -n "$HEADER.$PAYLOAD" > test.txt
+  # echo -n "$TEST" > test-sig.bin
+  # openssl dgst -sha256 -verify certs/$namespace/signing/jwt-sign.$DOMAIN.pub.pem -signature test-sig.bin test.txt
 
   # Finally, verify
-  openssl dgst -sha256 -verify ${ROOTDIR}/certs/$namespace/signing/jwt-sign.$DOMAIN.pub.pem -signature ./data/signature.dat ./data/payload.txt
+  openssl dgst -sha256 -verify certs/$namespace/signing/jwt-sign.$DOMAIN.pub.pem -signature ./data/signature.dat ./data/payload.txt
   #Output should be "Verified OK"
-
+  #echo "^^^^^^^^^^^^^^^^^^^^^^^^^^"
 }
 
 make_custom_jwt() {
@@ -175,21 +199,39 @@ make_custom_jwt() {
 
   PAYLOAD_TEMPLATE="{\"https://daml.com/ledger-api\": { \"ledgerId\": \"$namespace\", $SUBJECT_VAR $ADMIN_VAR }, \"exp\": $EXPIRY_DATE, \"aud\": \"https://daml.com/ledger-api\", \"azp\": \"$1\", \"iss\": \"local-jwt-provider\", \"iat\": $ISSUE_DATE, \"gty\": \"client-credentials\" }"
 
-  echo $PAYLOAD_TEMPLATE
-  echo $SIGNING_KEY
-  if [ ! -f /etc/os-release ] ; then
-    # Guessing this is Darwin
-    PAYLOAD=`echo -n "$PAYLOAD_TEMPLATE" | base64 | tr -- '+/' '-_' | sed -E s/=+$//`
-  else
-    PAYLOAD=`echo -n "$PAYLOAD_TEMPLATE" | base64 -w 0 | tr -- '+/' '-_' | sed -E s/=+$//`
-  fi
+  #echo PAYLOAD_TEMPLATE=$PAYLOAD_TEMPLATE
+  #echo SIGNING_KEY=$SIGNING_KEY
+  # if [ ! -f /etc/os-release ] ; then
+  #   # Guessing this is Darwin
+  #   PAYLOAD=`echo -n "$PAYLOAD_TEMPLATE" | base64 | tr -- '+/' '-_' | sed -E s/=+$//`
+  # else
+  #   PAYLOAD=`echo -n "$PAYLOAD_TEMPLATE" | base64 -w 0 | tr -- '+/' '-_' | sed -E s/=+$//`
+  # fi
+  get_os_type 
+  case ${_GET_OS_TYPE} in
+    Darwin)
+      PAYLOAD=`echo -n "$PAYLOAD_TEMPLATE" | base64  | tr -- '+/' '-_' | sed -E s/=+$//`
+      ;;
+    Linux)
+      PAYLOAD=`echo -n "$PAYLOAD_TEMPLATE" | base64 -w 0 | tr -- '+/' '-_' | sed -E s/=+$//`
+      ;;
+    CYGWIN_NT)
+      PAYLOAD=`echo -n "$PAYLOAD_TEMPLATE" | base64 -w 0 | tr -- '+/' '-_' | sed -E s/=+$//`
+      ;;
+    *)
+      echo "Unknown OS type of ${OS_TYPE}.   Aborting make_user_jwt ..."
+      exit 1
+  esac
+
+  #echo PAYLOAD=${PAYLOAD}
   DIGEST=`echo -n "$HEADER.$PAYLOAD" | openssl dgst -sha256 -sign $SIGNING_KEY -binary | base64 | tr -d '\n=' | tr -- "+/" "-_"`
   JWT=$HEADER.$PAYLOAD.$DIGEST
   echo -n $JWT > certs/$namespace/jwt/$user.token
   #echo "$user Token: $JWT"
   #echo ""
 
-  openssl x509 -pubkey -noout -in ${ROOTDIR}/certs/$namespace/signing/jwt-sign.$DOMAIN.cert.pem > ${ROOTDIR}/certs/$namespace/signing/jwt-sign.$DOMAIN.pub.pem
+  cd ${ROOTDIR}
+  openssl x509 -pubkey -noout -in certs/$namespace/signing/jwt-sign.$DOMAIN.cert.pem > certs/$namespace/signing/jwt-sign.$DOMAIN.pub.pem
   input=${JWT%.*}
   echo -n $input > ./data/payload.txt
   #echo $input
@@ -205,18 +247,18 @@ make_custom_jwt() {
   #TEST=`echo -n "$HEADER.$PAYLOAD" | openssl dgst -sha256 -sign $SIGNING_KEY -binary`
   #echo -n "$HEADER.$PAYLOAD" > test.txt
   #echo -n "$TEST" > test-sig.bin
-  #openssl dgst -sha256 -verify ${ROOTDIR}/certs/$namespace/signing/jwt-sign.$DOMAIN.pub.pem -signature test-sig.bin test.txt
+  #openssl dgst -sha256 -verify certs/$namespace/signing/jwt-sign.$DOMAIN.pub.pem -signature test-sig.bin test.txt
 
   # Finally, verify
-  openssl dgst -sha256 -verify ${ROOTDIR}/certs/$namespace/signing/jwt-sign.$DOMAIN.pub.pem -signature ./data/signature.dat ./data/payload.txt
+  openssl dgst -sha256 -verify certs/$namespace/signing/jwt-sign.$DOMAIN.pub.pem -signature ./data/signature.dat ./data/payload.txt
   #Output should be "Verified OK"
-
+  #echo "^^^^^^^^^^^^^^^^^^^^^^^^^^"
 }
 
 DOMAIN="customer1.com"
 namespace=participant1
 DOMAIN_NAME="Customer1, LLC"
-SIGNING_KEY=${ROOTDIR}/certs/$namespace/signing/jwt-sign.$DOMAIN.key.pem
+SIGNING_KEY=certs/$namespace/signing/jwt-sign.$DOMAIN.key.pem
 LEDGER_ID="participant1"
 if [ ! -f "$SIGNING_KEY" ] ; then
   make_jwt_signing $DOMAIN "$DOMAIN_NAME" $namespace
@@ -233,7 +275,7 @@ fi
 DOMAIN="customer2.com"
 namespace=participant2
 DOMAIN_NAME="Customer2, LLC"
-SIGNING_KEY=${ROOTDIR}/certs/$namespace/signing/jwt-sign.$DOMAIN.key.pem
+SIGNING_KEY=certs/$namespace/signing/jwt-sign.$DOMAIN.key.pem
 LEDGER_ID="participant2"
 if [ ! -f "$SIGNING_KEY" ] ; then
   make_jwt_signing $DOMAIN "$DOMAIN_NAME" $namespace
@@ -245,7 +287,9 @@ if [ -f ./data/participants.txt ] ; then
   PARTICIPANT=`cat ./data/participants.txt | jq '.[].party' | grep participant2 | tr -d "\"" | tr -d ","`
   make_user_jwt "bob" $PARTICIPANT
   make_user_jwt "bank" $PARTICIPANT
+  make_user_jwt "george" $PARTICIPANT
   BOB_PARTY=`cat data/parties.txt | jq .'bob' | tr -d '"'`
   BANK_PARTY=`cat data/parties.txt | jq .'bank' | tr -d '"'`
-  make_custom_jwt "navigator" "" "true" " \"$BOB_PARTY\",\"$BANK_PARTY\" " $PARTICIPANT
+  GEORGE_PARTY=`cat data/parties.txt | jq .'george' | tr -d '"'`
+  make_custom_jwt "navigator" "" "true" " \"$BOB_PARTY\",\"$BANK_PARTY\",\"$GEORGE_PARTY\" " $PARTICIPANT
 fi

@@ -13,6 +13,7 @@ data PartiesP2 = PartiesP2
   with
     bob : Party
     bank: Party
+    george: Party
 
 -- | A test user for the create-daml-app network.
 data TestUser = TestUser with
@@ -40,10 +41,12 @@ setup_participant2 : Script PartiesP2
 setup_participant2 = do
   bob <- createTestUser $ TestUser "Bob"
   bank <- createTestUser $ TestUser "Bank"
+  george <- createTestUser $ TestUser "George"
   navigator <- createNavigator $ NavigatorUser "navigator" [bob,bank]
   pure $ PartiesP2 with
       bob
       bank
+      george
 
 -- | Create a test user.
 createTestUser : TestUser -> Script Party

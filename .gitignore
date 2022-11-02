@@ -6,6 +6,7 @@ dars/*
 .daml/*
 ex-secure-canton-infra.iml
 certs/*
+data/*
 domain-params.bin
 sequencer-public-key.pem
 domain-topology.bin
@@ -13,7 +14,6 @@ mediator-key.pem
 sequencer-connection.bin
 navigator.log
 .DS_Store
-.data/*
 nginx-conf/nginx-sequencer.conf
 nginx-conf/nginx-participant1.conf
 client-app/project/project/
@@ -23,3 +23,10 @@ jSSLKeyLog-1.3.zip
 jSSLKeyLog.jar
 haproxy-conf/haproxy-sequencer.conf
 haproxy-conf/haproxy-participant1.conf
+nginx-conf/nginx-json-p1.conf
+nginx-conf/nginx-json-p2.conf
+haproxy-conf/haproxy-json-p1.conf
+haproxy-conf/haproxy-json-p2.conf
+data/signature.dat
+data/payload.txt
+data/participant1.txt

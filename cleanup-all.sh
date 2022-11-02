@@ -13,6 +13,12 @@ docker rm lb-sequencer
 docker stop lb-participant1
 docker rm lb-participant1
 
+docker stop lb-json-p1
+docker rm lb-json-p1
+
+docker stop lb-json-p2
+docker rm lb-json-p2
+
 docker stop domain-postgres
 docker rm domain-postgres
 

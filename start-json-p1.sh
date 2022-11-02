@@ -12,7 +12,7 @@ DOMAIN=customer1.com
 
 daml json-api --log-level info \
   --ledger-host $PARTICIPANT_1_HOST --ledger-port $PARTICIPANT_1_PORT \
-  --address 0.0.0.0 --http-port=$JSON_API_1_PORT \
+  --address 0.0.0.0 --http-port=$JSON_API_1A_PORT \
   --max-inbound-message-size 4194304 \
   --package-reload-interval 5s \
   --cacrt certs/participant1/intermediate/certs/ca-chain.cert.pem \

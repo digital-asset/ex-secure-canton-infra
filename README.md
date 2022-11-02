@@ -31,6 +31,7 @@ formats for User Authentication.
 - [Local Canton Console Testing](Documentation/test-local.md)
 - [Script and REPL Testing](Documentation/test-script.md)
 - [HA Setup of Canton Domain and Participants](Documentation/test-ha.md)
+- [JSON API and Triggers](Documentation/test-json-triggers.md)
 
 
 - [Sharing Dars across Participants (alpha feature)](./Documentation/dar-sharing.md)

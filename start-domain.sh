@@ -3,7 +3,7 @@
 source env.sh
 
 export POSTGRES_USER=domain
-export POSTGRES_PASSWORD=DomainPassword!
+export POSTGRES_PASSWORD="DomainPassword!"
 export POSTGRES_HOST=localhost
 export POSTGRES_PORT=5432
 export POSTGRES_MAX_CONNECTIONS=8

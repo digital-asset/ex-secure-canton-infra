@@ -37,11 +37,26 @@ export OCSP_PARTICIPANT1_INTERMEDIATE_PORT=2564
 exportOCSP_PARTICIPANT2_ROOT_PORT=2565
 export OCSP_PARTICIPANT2_INTERMEDIATE_PORT=2566
 
-
+# JSON Participant1
 export JSON_API_1_HOST=localhost
+export JSON_API_1_PORT=9000
+export JSON_API_1A_HOST=localhost
+export JSON_API_1B_HOST=localhost
+export JSON_API_1A_PORT=9001
+export JSON_API_1B_PORT=9002
+
+# JSON Participant2
 export JSON_API_2_HOST=localhost
-export JSON_API_1_PORT=9001
-export JSON_API_2_PORT=9002
+export JSON_API_2_PORT=9010
+export JSON_API_2A_HOST=localhost
+export JSON_API_2B_HOST=localhost
+export JSON_API_2A_PORT=9011
+export JSON_API_2B_PORT=9012
+
+export JWTISSUER_1_HOST=localhost
+export JWTISSUER_2_HOST=localhost
+export JWTISSUER_1_PORT=9500
+export JWTISSUER_2_PORT=9501
 
 if [[ "CLIENTSIDE" == "$ENABLE_HA" || "NONE" == "$ENABLE_HA" ]]; then
 

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # https://www.jvt.me/posts/2019/06/13/pretty-printing-jwt-openssl/
+source env.sh
 
 function jwt() {
   for part in 1 2; do
@@ -36,11 +37,20 @@ jwt "$JWT"
 
 EXPIRY_DATE=`echo $PAYLOAD | jq .exp`
 
-if [ ! -f /etc/os-release ] ; then
-  # Guessing this is Darwin
-  EXPIRY_STR=`date -r "$EXPIRY_DATE" '+%m/%d/%Y:%H:%M:%S'`
-else
-  EXPIRY_STR=`date -d "@$EXPIRY_DATE" '+%m/%d/%Y:%H:%M:%S'`
-fi
+get_os_type 
+case ${_GET_OS_TYPE} in
+  Darwin)
+    EXPIRY_STR=`date -r "$EXPIRY_DATE" '+%m/%d/%Y:%H:%M:%S'`
+    ;;
+  Linux)
+    EXPIRY_STR=`date -d "@$EXPIRY_DATE" '+%m/%d/%Y:%H:%M:%S'`
+    ;;
+  CYGWIN_NT)
+    EXPIRY_STR=`date -d "@$EXPIRY_DATE" '+%m/%d/%Y:%H:%M:%S'`
+    ;;
+  *)
+    echo "Unknown OS type of ${OS_TYPE}.   Aborting decode_jst.sh ..."
+    exit 1
+esac
 
 echo "Expiry Date: $EXPIRY_STR"

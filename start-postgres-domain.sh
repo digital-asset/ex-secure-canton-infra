@@ -4,6 +4,14 @@
 
 source env.sh
 
+get_os_type 
+if  [[ ${_GET_OS_TYPE} =~ 'CYGWIN_NT' ]];then
+  # Windows only supports a single postgres instance so all the TLS certs will be from the domain
+  # for cygwin.  Create in the 'domain' pki
+  echo "This script is not intended to be run in a Windows cygwin environment because it is assuemd there is a single, native windows postgres running."
+  echo "This file is for Linux or MacOs where a postgres container is used.  Aborting ..."
+fi
+
 export DOMAIN=acme.com
 
 docker stop domain-postgres > /dev/null 2>&1

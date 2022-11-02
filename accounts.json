@@ -1,0 +1,65 @@
+[
+    {
+        "client_id": "alice123456",
+        "client_secret": "ComplexPassphrase!",
+        "parties": ["alice"],
+        "admin": "False",
+        "sub": "alice",
+        "token_type": "user",
+        "participant_id": "participant1"
+    },
+    {
+        "client_id": "bob123456",
+        "client_secret": "ComplexPassphrase!",
+        "parties": ["bob"],
+        "admin": "False",
+        "sub": "bob",
+        "token_type": "user",
+        "participant_id": "participant2"
+    },
+    {
+        "client_id": "bank123456",
+        "client_secret": "ComplexPassphrase!",
+        "parties": ["bank"],
+        "admin": "False",
+        "sub": "bank",
+        "token_type": "user",
+        "participant_id": "participant2"
+    },
+    {
+        "client_id": "george123456",
+        "client_secret": "ComplexPassphrase!",
+        "parties": ["george"],
+        "admin": "False",
+        "sub": "george",
+        "token_type": "user",
+        "participant_id": "participant2"
+    },
+    {
+        "client_id": "navigator123456",
+        "client_secret": "ComplexPassphrase!",
+        "parties": ["alice"],
+        "admin": "True",
+        "sub": "navigator",
+        "token_type": "user",
+        "participant_id": "participant1"
+    },
+    {
+        "client_id": "navigator123456",
+        "client_secret": "ComplexPassphrase!",
+        "parties": ["bob", "george"],
+        "admin": "True",
+        "sub": "navigator",
+        "token_type": "user",
+        "participant_id": "participant2"
+    },
+    {
+        "client_id": "participant_admin",
+        "client_secret": "AdminPassphrase!",
+        "parties": [],
+        "admin": "True",
+        "sub": "participant_admin",
+        "token_type": "user",
+        "participant_id": "all"
+    }
+]

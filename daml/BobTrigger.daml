@@ -1,0 +1,29 @@
+-- Copyright (c) 2018-2020, Digital Asset (Switzerland) GmbH and/or its affiliates.
+-- All rights reserved.
+
+module BobTrigger where
+
+import DA.Foldable
+import Daml.Trigger
+import Main
+
+rejectTrigger : Trigger ()
+rejectTrigger = Trigger
+  { initialize = pure ()
+  , updateState = \_message -> pure ()
+  , rule = rejectRule
+  , registeredTemplates = AllInDar
+  , heartbeat = None
+  }
+
+rejectRule : Party -> TriggerA () ()
+rejectRule p = do
+  assets : [(ContractId Asset, Asset)] <- query @Asset
+  let bobAssets = filter (\(_,a) -> a.owner == p) assets
+  configs : [(ContractId DonorConfig, DonorConfig)] <- query @DonorConfig
+  let Some (_,bobConfig) = find (\(_,c) -> c.owner == p) configs
+
+  forA_ bobAssets $ \(_cid, c) -> do
+    debug "Ran rejectRule"
+    emitCommands [exerciseCmd _cid Give with newOwner = bobConfig.donateTo] [toAnyContractId _cid]
+

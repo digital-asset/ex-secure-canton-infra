@@ -7,7 +7,7 @@ how to configure a fully secure Canton setup.
 ## Pre-requisites
 
 - This has been tested on MacOS Monterey and Ubuntu Linux with Java OpenJDK (Zulu) 11
-- This has been tested with Daml SDK 2.3.1 and Daml Community and Enterprise 2.3.1
+- This has been tested with Daml SDK 2.7.4 and Daml Community and Enterprise 2.7.4
 - Ensure you have Python3 installed
   - This may no longer be installed on MacOS Monterey or later
   - run ```brew install python```
@@ -24,14 +24,14 @@ how to configure a fully secure Canton setup.
 Install SDK by following steps in documentation: https://docs.daml.com/getting-started/installation.html 
 
 Download copy of the Canton artifacts
-- Community - https://github.com/digital-asset/daml and download canton-community-2.3.1.tar.gz
+- Community - https://github.com/digital-asset/daml and download canton-community-2.7.4.tar.gz
 - Enterprise - Please contact Digital Asset (sales@digitalasset.com) for details.
 
 The Canton version is determined by setting the environment variable
 CANTON_DIR to the root of the Canton installation.  A default is
 hardcoded in env.sh.  For example, if canton is unzipped with the path
-```~/src/canton-enterprise-2.3.2``` then "```export
-CANTON_DIR=~/src/canton-enterprise-2.3.2```".
+```~/src/canton-enterprise-2.7.4``` then "```export
+CANTON_DIR=~/src/canton-enterprise-2.7.4```".
 
 ## Clean and build base environment
 

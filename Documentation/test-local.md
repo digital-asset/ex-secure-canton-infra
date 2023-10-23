@@ -32,13 +32,13 @@ participant1.id
 ## On particpant 1 console
 val alice = participant1.parties.enable("Alice")
 # Load the dar file into the participant
-val darPath=scala.util.Properties.envOrElse("CANTON_DIR", "./canton-enterprise-2.3.1") + "/dars/CantonExamples.dar"
+val darPath=scala.util.Properties.envOrElse("CANTON_DIR", "./canton-enterprise-2.7.4") + "/dars/CantonExamples.dar"
 participant1.dars.upload(darPath)
 
 ## On particpant 2 console
 val bob = participant2.parties.enable("Bob")
 val bank = participant2.parties.enable("Bank", waitForDomain = DomainChoice.All)
-val darPath=scala.util.Properties.envOrElse("CANTON_DIR", "./canton-enterprise-2.3.1") + "/dars/CantonExamples.dar"
+val darPath=scala.util.Properties.envOrElse("CANTON_DIR", "./canton-enterprise-2.7.4") + "/dars/CantonExamples.dar"
 participant2.dars.upload(darPath)
 
 ## On P1

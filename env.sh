@@ -6,7 +6,7 @@ ROOTDIR=$PWD
 
 # set the environment variable CANTON_DIR to the root of the canton directory tree.  used to find the canon command
 if [[ -z ${CANTON_DIR} ]];then
-    CANTON_DIR=./canton-enterprise-2.4.0
+    CANTON_DIR=./canton-enterprise-2.7.4
 fi
 echo "Canton directory is:  ${CANTON_DIR}"	
 

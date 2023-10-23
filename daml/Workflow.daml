@@ -14,7 +14,7 @@ data Parties = Parties
     bank : Party
     george : Party
 
-assumeFirst: forall tpl p. (Template tpl, IsParties p) => p -> Script (ContractId tpl)
+assumeFirst: forall tpl p. (Template tpl, HasAgreement tpl, IsParties p) => p -> Script (ContractId tpl)
 assumeFirst party = do
   (headId, _) :: _ <- query @tpl party
   pure headId

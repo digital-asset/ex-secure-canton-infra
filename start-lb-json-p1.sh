@@ -40,7 +40,9 @@ cat ./nginx-conf/nginx.conf-json-template | \
   sed -e "s;<JSON_API_HOST>;$JSON_API_1_HOST;g" | \
   sed -e "s;<JSON_API_PORT>;$JSON_API_1_PORT;g" | \
   sed -e "s;<JSON_API_A_HOST>;$JSON_API_1A_HOST;g" | \
-  sed -e "s;<JSON_API_A_PORT>;$JSON_API_1A_PORT;g" \
+  sed -e "s;<JSON_API_A_PORT>;$JSON_API_1A_PORT;g" | \
+  sed -e "s;<JSON_API_B_HOST>;$JSON_API_1B_HOST;g" | \
+  sed -e "s;<JSON_API_B_PORT>;$JSON_API_1B_PORT;g" \
    > ./nginx-conf/nginx-json-p1.conf
 
 docker run --name lb-json-p1 -p $JSON_API_1_PORT:$JSON_API_1_PORT \
@@ -61,7 +63,9 @@ cat ./haproxy-conf/haproxy.conf-json-template | \
   sed -e "s;<JSON_API_HOST>;$JSON_API_1_HOST;g" | \
   sed -e "s;<JSON_API_PORT>;$JSON_API_1_PORT;g" | \
   sed -e "s;<JSON_API_A_HOST>;$JSON_API_1A_HOST;g" | \
-  sed -e "s;<JSON_API_A_PORT>;$JSON_API_1A_PORT;g" \
+  sed -e "s;<JSON_API_A_PORT>;$JSON_API_1A_PORT;g" | \
+  sed -e "s;<JSON_API_B_HOST>;$JSON_API_1B_HOST;g" | \
+  sed -e "s;<JSON_API_B_PORT>;$JSON_API_1B_PORT;g" \
    > ./haproxy-conf/haproxy-json-p1.conf
 
 docker run --name lb-json-p1 -p $JSON_API_1_PORT:$JSON_API_1_PORT  \

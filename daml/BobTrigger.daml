@@ -12,7 +12,7 @@ rejectTrigger = Trigger
   { initialize = pure ()
   , updateState = \_message -> pure ()
   , rule = rejectRule
-  , registeredTemplates = AllInDar
+  , registeredTemplates = AllTemplates
   , heartbeat = None
   }
 

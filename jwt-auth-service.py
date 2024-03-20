@@ -417,10 +417,11 @@ def init_logger():
     return logger
 
 def start_server_thread(port: int):
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.load_cert_chain(tls_cert_file, tls_key_file)
+
     server = JWTHttpServer(port)
-    server.socket = ssl.wrap_socket(server.socket,
-                                   keyfile=tls_key_file,
-                                   certfile=tls_cert_file, server_side=True)
+    server.socket = context.wrap_socket(server.socket, server_side=True)
 
     server_thread = Thread(target=lambda: server.start())
     server_thread.start()

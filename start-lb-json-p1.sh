@@ -13,9 +13,6 @@ if [ ! "LOADBALANCER" == "$ENABLE_HA" ] ; then
    exit 1
 fi
 
-#LOADBALANCER_TYPE="NGINX"
-LOADBALANCER_TYPE="HAPROXY"
-
 # Run NGINX load balancer for Participant
 
 case "$(uname -s)" in
@@ -52,7 +49,7 @@ docker run --name lb-json-p1 -p $JSON_API_1_PORT:$JSON_API_1_PORT \
   -v "$(pwd)/certs/participant1/intermediate/certs/ca-chain.cert.pem:/etc/ssl/certs/ca-chain.crt:ro" \
   -v "$(pwd)/certs/participant1/client/admin-api.$DOMAIN.cert.pem:/etc/ssl/client.crt:ro" \
   -v "$(pwd)/certs/participant1/client/admin-api.$DOMAIN.key.pem:/etc/ssl/client.key:ro" \
-  -d nginx:1.23.1-alpine
+  -d $LOADBALANCER_VERSION
 
 fi
 
@@ -76,6 +73,6 @@ docker run --name lb-json-p1 -p $JSON_API_1_PORT:$JSON_API_1_PORT  \
   -v "$(pwd)/certs/participant1/intermediate/certs/ca-chain.cert.pem:/etc/ssl/certs/ca-chain.crt:ro" \
   -v "$(pwd)/certs/participant1/client/admin-api.$DOMAIN.cert.pem:/etc/ssl/client.crt:ro" \
   -v "$(pwd)/certs/participant1/client/admin-api.$DOMAIN.key.pem:/etc/ssl/client.crt.key:ro" \
-  -P -d haproxy:2.6.2-alpine
+  -P -d $LOADBALANCER_VERSION
 
 fi

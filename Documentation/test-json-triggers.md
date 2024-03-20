@@ -48,7 +48,7 @@ A Daml party sets up their "DonorConfig" to define who should receive any assets
 To demonstrate Triggers and JWT Authorization we use the following Daml Model:
 
 ```aidl
--- Copyright (c) 2018-2020, Digital Asset (Switzerland) GmbH and/or its affiliates.
+-- Copyright (c) 2024, Digital Asset (Switzerland) GmbH and/or its affiliates.
 -- All rights reserved.
 
 module Main where
@@ -416,6 +416,6 @@ the party ID rather than a user ID.
 }
 ```
 
-**Copyright (c) 2022 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+**Copyright (c) 2024 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 SPDX-License-Identifier: Apache-2.0**
 

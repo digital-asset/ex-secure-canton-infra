@@ -213,5 +213,5 @@ NOTE: We only add load balancer for Participant 1. Participant 2 is left as an e
 - http://nginx.org/en/docs/http/configuring_https_servers.html
 
 
-**Copyright (c) 2022 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+**Copyright (c) 2024 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 SPDX-License-Identifier: Apache-2.0**

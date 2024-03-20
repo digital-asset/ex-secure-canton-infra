@@ -1,5 +1,5 @@
 #!/usr/local/bin/python
-# Copyright (c) 2020 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+# Copyright (c) 2024 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 import os.path
 # Based on example from Github GIST: https://gist.github.com/ktmud/a63778d9d0d37d030d72e6ca0b9ac356

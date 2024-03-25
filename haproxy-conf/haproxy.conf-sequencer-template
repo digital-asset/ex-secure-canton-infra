@@ -16,7 +16,7 @@ defaults
 
 frontend sequencer-api
     bind :<SEQUENCER_PORT> alpn h2 proto h2 ssl crt /etc/ssl/server.crt verify none ca-file /etc/ssl/certs/ca-chain.crt
-    default_backend ledger-api
+    default_backend sequencer-api
     #option httplog
     option http-keep-alive
 

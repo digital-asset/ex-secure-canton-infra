@@ -1,5 +1,5 @@
 #!/usr/local/bin/python
-# Copyright (c) 2020 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+# Copyright (c) 2024 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 import os.path
 # Based on example from Github GIST: https://gist.github.com/ktmud/a63778d9d0d37d030d72e6ca0b9ac356
@@ -417,10 +417,11 @@ def init_logger():
     return logger
 
 def start_server_thread(port: int):
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.load_cert_chain(tls_cert_file, tls_key_file)
+
     server = JWTHttpServer(port)
-    server.socket = ssl.wrap_socket(server.socket,
-                                   keyfile=tls_key_file,
-                                   certfile=tls_cert_file, server_side=True)
+    server.socket = context.wrap_socket(server.socket, server_side=True)
 
     server_thread = Thread(target=lambda: server.start())
     server_thread.start()

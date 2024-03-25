@@ -50,7 +50,7 @@ relevant user context.
 
 ```angular2html
 #!/bin/bash
-# Copyright (c) 2020 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+# Copyright (c) 2024 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 source env.sh
@@ -149,6 +149,6 @@ Some alice <- pure $ partyFromText "Alice"
 
 Next: [HA Testing](./test-ha.md)
 
-**Copyright (c) 2022 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+**Copyright (c) 2024 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 SPDX-License-Identifier: Apache-2.0**
 

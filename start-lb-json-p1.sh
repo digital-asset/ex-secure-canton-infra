@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2020 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+# Copyright (c) 2024 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # set -e
@@ -12,9 +12,6 @@ if [ ! "LOADBALANCER" == "$ENABLE_HA" ] ; then
    echo " Not running as not in Load Balancer mode"
    exit 1
 fi
-
-#LOADBALANCER_TYPE="NGINX"
-LOADBALANCER_TYPE="HAPROXY"
 
 # Run NGINX load balancer for Participant
 
@@ -40,7 +37,9 @@ cat ./nginx-conf/nginx.conf-json-template | \
   sed -e "s;<JSON_API_HOST>;$JSON_API_1_HOST;g" | \
   sed -e "s;<JSON_API_PORT>;$JSON_API_1_PORT;g" | \
   sed -e "s;<JSON_API_A_HOST>;$JSON_API_1A_HOST;g" | \
-  sed -e "s;<JSON_API_A_PORT>;$JSON_API_1A_PORT;g" \
+  sed -e "s;<JSON_API_A_PORT>;$JSON_API_1A_PORT;g" | \
+  sed -e "s;<JSON_API_B_HOST>;$JSON_API_1B_HOST;g" | \
+  sed -e "s;<JSON_API_B_PORT>;$JSON_API_1B_PORT;g" \
    > ./nginx-conf/nginx-json-p1.conf
 
 docker run --name lb-json-p1 -p $JSON_API_1_PORT:$JSON_API_1_PORT \
@@ -50,7 +49,7 @@ docker run --name lb-json-p1 -p $JSON_API_1_PORT:$JSON_API_1_PORT \
   -v "$(pwd)/certs/participant1/intermediate/certs/ca-chain.cert.pem:/etc/ssl/certs/ca-chain.crt:ro" \
   -v "$(pwd)/certs/participant1/client/admin-api.$DOMAIN.cert.pem:/etc/ssl/client.crt:ro" \
   -v "$(pwd)/certs/participant1/client/admin-api.$DOMAIN.key.pem:/etc/ssl/client.key:ro" \
-  -d nginx:1.23.1-alpine
+  -d $LOADBALANCER_VERSION
 
 fi
 
@@ -61,7 +60,9 @@ cat ./haproxy-conf/haproxy.conf-json-template | \
   sed -e "s;<JSON_API_HOST>;$JSON_API_1_HOST;g" | \
   sed -e "s;<JSON_API_PORT>;$JSON_API_1_PORT;g" | \
   sed -e "s;<JSON_API_A_HOST>;$JSON_API_1A_HOST;g" | \
-  sed -e "s;<JSON_API_A_PORT>;$JSON_API_1A_PORT;g" \
+  sed -e "s;<JSON_API_A_PORT>;$JSON_API_1A_PORT;g" | \
+  sed -e "s;<JSON_API_B_HOST>;$JSON_API_1B_HOST;g" | \
+  sed -e "s;<JSON_API_B_PORT>;$JSON_API_1B_PORT;g" \
    > ./haproxy-conf/haproxy-json-p1.conf
 
 docker run --name lb-json-p1 -p $JSON_API_1_PORT:$JSON_API_1_PORT  \
@@ -72,6 +73,6 @@ docker run --name lb-json-p1 -p $JSON_API_1_PORT:$JSON_API_1_PORT  \
   -v "$(pwd)/certs/participant1/intermediate/certs/ca-chain.cert.pem:/etc/ssl/certs/ca-chain.crt:ro" \
   -v "$(pwd)/certs/participant1/client/admin-api.$DOMAIN.cert.pem:/etc/ssl/client.crt:ro" \
   -v "$(pwd)/certs/participant1/client/admin-api.$DOMAIN.key.pem:/etc/ssl/client.crt.key:ro" \
-  -P -d haproxy:2.6.2-alpine
+  -P -d $LOADBALANCER_VERSION
 
 fi

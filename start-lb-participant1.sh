@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2020 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+# Copyright (c) 2024 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # set -e
@@ -10,7 +10,6 @@ if [ ! "LOADBALANCER" == "$ENABLE_HA" ] ; then
    echo " Not running as not in Load Balancer mode"
    exit 1
 fi
-
 
 # Run NGINX load balancer for Participant
 
@@ -46,7 +45,7 @@ docker run --name lb-participant1 -p $PARTICIPANT_1_PORT:$PARTICIPANT_1_PORT  \
   -v "$(pwd)/certs/participant1/intermediate/certs/ca-chain.cert.pem:/etc/ssl/certs/ca-chain.crt:ro" \
   -v "$(pwd)/certs/participant1/client/admin-api.$DOMAIN.cert.pem:/etc/ssl/client.crt:ro" \
   -v "$(pwd)/certs/participant1/client/admin-api.$DOMAIN.key.pem:/etc/ssl/client.key:ro" \
-  -P -d nginx:1.23.1-alpine
+  -P -d $LOADBALANCER_VERSION
 
 fi
 
@@ -71,6 +70,6 @@ docker run --name lb-participant1 -p $PARTICIPANT_1_PORT:$PARTICIPANT_1_PORT  \
   -v "$(pwd)/certs/participant1/intermediate/certs/ca-chain.cert.pem:/etc/ssl/certs/ca-chain.crt:ro" \
   -v "$(pwd)/certs/participant1/client/admin-api.$DOMAIN.cert.pem:/etc/ssl/client.crt:ro" \
   -v "$(pwd)/certs/participant1/client/admin-api.$DOMAIN.key.pem:/etc/ssl/client.crt.key:ro" \
-  -P -d haproxy:2.6.2-alpine
+  -P -d $LOADBALANCER_VERSION
 
 fi

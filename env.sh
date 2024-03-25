@@ -6,7 +6,7 @@ ROOTDIR=$PWD
 
 # set the environment variable CANTON_DIR to the root of the canton directory tree.  used to find the canon command
 if [[ -z ${CANTON_DIR} ]];then
-    CANTON_DIR=./canton-enterprise-2.7.4
+    CANTON_DIR=./canton-enterprise-2.8.3
 fi
 echo "Canton directory is:  ${CANTON_DIR}"	
 
@@ -93,15 +93,21 @@ export RUN_AS_DAEMON=""
 # HA can be "CLIENTSIDE" or "LOADBALANCER" or "NONE".  Default is no load balancing since it doesn't require another
 # binary for the load balancer.  In most cases "NONE" will reuse values from "CLIENTSIDE".
 #export ENABLE_HA="CLIENTSIDE"
-#export ENABLE_HA="LOADBALANCER"
-export ENABLE_HA="NONE"
+export ENABLE_HA="LOADBALANCER"
+#export ENABLE_HA="NONE"
 echo "Load Balancer Mode: $ENABLE_HA"
 
 if [ "LOADBALANCER" == "$ENABLE_HA" ] ; then
-# Select the loadbalancer
+
+# Select the loadbalancer and version
 #LOADBALANCER_TYPE="NGINX"
+#LOADBALANCER_VERSION="nginx:1.23.1-alpine"
+
 LOADBALANCER_TYPE="HAPROXY"
-echo "Using Load Balancer of type: $LOADBALANCER_TYPE"
+LOADBALANCER_VERSION="haproxy:2.8.7-alpine3.19"
+
+echo "Using Load Balancer of type: $LOADBALANCER_TYPE AND $LOADBALANCER_VERSION"
+
 fi
 
 source env-ports.sh

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2022 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+# Copyright (c) 2024 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # https://prefetch.net/blog/2020/04/22/using-grpcurl-to-interact-with-grpc-applications/

@@ -91,7 +91,7 @@ participant2.ledger_api.acs.of_party(bank).map(x => (x.templateId, x.arguments))
 Next: [Testing using Daml Script and REPL console](./test-script.md)
 
 
-**Copyright (c) 2022 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+**Copyright (c) 2024 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 SPDX-License-Identifier: Apache-2.0**
 
 

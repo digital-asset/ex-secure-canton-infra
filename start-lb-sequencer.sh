@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2020 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+# Copyright (c) 2024 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # set -e
@@ -46,7 +46,7 @@ docker run --name lb-sequencer -p $SEQUENCER_PORT:$SEQUENCER_PORT  \
   -v "$(pwd)/certs/domain/intermediate/certs/ca-chain.cert.pem:/etc/ssl/certs/ca-chain.crt:ro" \
   -v "$(pwd)/certs/domain/client/admin-api.$DOMAIN.cert.pem:/etc/ssl/client.crt:ro" \
   -v "$(pwd)/certs/domain/client/admin-api.$DOMAIN.key.pem:/etc/ssl/client.key:ro" \
-  -P -d nginx:1.23.1
+  -P -d $LOADBALANCER_VERSION
 
 fi
 
@@ -70,6 +70,6 @@ docker run --name lb-sequencer -p $SEQUENCER_PORT:$SEQUENCER_PORT  \
   -v "$(pwd)/certs/domain/intermediate/certs/ca-chain.cert.pem:/etc/ssl/certs/ca-chain.crt:ro" \
   -v "$(pwd)/certs/domain/client/admin-api.$DOMAIN.cert.pem:/etc/ssl/client.crt:ro" \
   -v "$(pwd)/certs/domain/client/admin-api.$DOMAIN.key.pem:/etc/ssl/client.crt.key:ro" \
-  -P -d haproxy:2.6.2-alpine
+  -P -d $LOADBALANCER_VERSION
 
 fi

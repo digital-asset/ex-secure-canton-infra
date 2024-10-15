@@ -6,7 +6,7 @@ ROOTDIR=$PWD
 
 # set the environment variable CANTON_DIR to the root of the canton directory tree.  used to find the canon command
 if [[ -z ${CANTON_DIR} ]];then
-    CANTON_DIR=./canton-enterprise-2.8.3
+    CANTON_DIR=./canton-enterprise-2.9.4
 fi
 echo "Canton directory is:  ${CANTON_DIR}"	
 
@@ -101,10 +101,10 @@ if [ "LOADBALANCER" == "$ENABLE_HA" ] ; then
 
 # Select the loadbalancer and version
 #LOADBALANCER_TYPE="NGINX"
-#LOADBALANCER_VERSION="nginx:1.23.1-alpine"
+#LOADBALANCER_VERSION="nginx:1.27.2-alpine"
 
 LOADBALANCER_TYPE="HAPROXY"
-LOADBALANCER_VERSION="haproxy:2.8.7-alpine3.19"
+LOADBALANCER_VERSION="haproxy:2.9.11-alpine3.20"
 
 echo "Using Load Balancer of type: $LOADBALANCER_TYPE AND $LOADBALANCER_VERSION"
 

@@ -15,6 +15,8 @@ CURL_CERT_PARAM2="--key $(pwd)/certs/participant2/client/admin-api.$DOMAIN2.key.
 
 AUTH_TOKEN=`cat "certs/participant1/jwt/navigator.token"`
 
+PACKAGE_ID=`daml damlc inspect-dar --json dars/SecureDaml.dar | jq -r .main_package_id`
+
 echo ""
 echo "Getting all current parties"
 RESULT=`curl -s --cacert ./certs/participant1/intermediate/certs/ca-chain.cert.pem $CURL_CERT_PARAM \
@@ -60,7 +62,7 @@ echo "Creating new Iou contract"
 RESULT=`curl -s --cacert ./certs/participant2/intermediate/certs/ca-chain.cert.pem $CURL_CERT_PARAM2 \
   -X POST -H 'Content-Type: application/json' \
   -H "Authorization: Bearer $BANK_AUTH_TOKEN" \
-  -d "{ \"templateId\": \"Iou:Iou\", \"payload\": {\"owner\": \"$ALICE_PARTY_ID\", \"amount\": { \"value\": \"100\", \"currency\": \"USD\" }, \"payer\": \"$BANK_PARTY_ID\", \"viewers\": []}} " \
+  -d "{ \"templateId\": \"$PACKAGE_ID:Iou:Iou\", \"payload\": {\"owner\": \"$ALICE_PARTY_ID\", \"amount\": { \"value\": \"100\", \"currency\": \"USD\" }, \"payer\": \"$BANK_PARTY_ID\", \"viewers\": []}} " \
   https://$JSON_API_2_HOST:$JSON_API_2_PORT/v1/create`
 
 echo $RESULT | jq .
@@ -80,7 +82,7 @@ echo "Create Paint offer"
 RESULT=`curl -s --cacert ./certs/participant2/intermediate/certs/ca-chain.cert.pem $CURL_CERT_PARAM2 \
   -X POST -H 'Content-Type: application/json' \
   -H "Authorization: Bearer $BOB_AUTH_TOKEN" \
-  -d "{ \"templateId\": \"Paint:OfferToPaintHouseByPainter\", \"payload\": {\"houseOwner\": \"$ALICE_PARTY_ID\", \"amount\": { \"value\": \"100\", \"currency\": \"USD\" }, \"bank\": \"$BANK_PARTY_ID\", \"painter\": \"$BOB_PARTY_ID\"}} " \
+  -d "{ \"templateId\": \"$PACKAGE_ID:Paint:OfferToPaintHouseByPainter\", \"payload\": {\"houseOwner\": \"$ALICE_PARTY_ID\", \"amount\": { \"value\": \"100\", \"currency\": \"USD\" }, \"bank\": \"$BANK_PARTY_ID\", \"painter\": \"$BOB_PARTY_ID\"}} " \
   https://$JSON_API_2_HOST:$JSON_API_2_PORT/v1/create`
 
 echo $RESULT | jq .
@@ -101,7 +103,7 @@ echo "Exercise choice on Paint offer"
 RESULT=`curl -s --cacert ./certs/participant1/intermediate/certs/ca-chain.cert.pem $CURL_CERT_PARAM \
   -X POST -H 'Content-Type: application/json' \
   -H "Authorization: Bearer $ALICE_AUTH_TOKEN" \
-  -d "{ \"templateId\": \"Paint:OfferToPaintHouseByPainter\", \"contractId\": \"$PAINT_CONTRACT_ID\", \"user\": \"$ALICE_PARTY_ID\", \"choice\": \"AcceptByOwner\", \"argument\": { \"iouId\": \"$IOU_CONTRACT_ID\" } } " \
+  -d "{ \"templateId\": \"$PACKAGE_ID:Paint:OfferToPaintHouseByPainter\", \"contractId\": \"$PAINT_CONTRACT_ID\", \"user\": \"$ALICE_PARTY_ID\", \"choice\": \"AcceptByOwner\", \"argument\": { \"iouId\": \"$IOU_CONTRACT_ID\" } } " \
   https://$JSON_API_1_HOST:$JSON_API_1_PORT/v1/exercise`
 
 echo $RESULT | jq .
@@ -121,7 +123,7 @@ echo "Exercise getCash choice"
 RESULT=`curl -s --cacert ./certs/participant2/intermediate/certs/ca-chain.cert.pem $CURL_CERT_PARAM2 \
   -X POST -H 'Content-Type: application/json' \
   -H "Authorization: Bearer $BOB_AUTH_TOKEN" \
-  -d "{ \"templateId\": \"Iou:Iou\", \"contractId\": \"$ACCEPT_CONTRACT_ID\", \"user\": \"$BOB_PARTY_ID\", \"choice\": \"Call\", \"argument\": {} } " \
+  -d "{ \"templateId\": \"$PACKAGE_ID:Iou:Iou\", \"contractId\": \"$ACCEPT_CONTRACT_ID\", \"user\": \"$BOB_PARTY_ID\", \"choice\": \"Call\", \"argument\": {} } " \
   https://$JSON_API_2_HOST:$JSON_API_2_PORT/v1/exercise`
 
 echo $RESULT | jq .

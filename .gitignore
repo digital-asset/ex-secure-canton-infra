@@ -30,3 +30,4 @@ haproxy-conf/haproxy-json-p2.conf
 data/signature.dat
 data/payload.txt
 data/participant1.txt
+venv/*
